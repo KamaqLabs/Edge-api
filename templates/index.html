@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IoT Dashboard</title>
+  <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+</head>
+<body>
+  <h1>📡 Monitoreo en tiempo real (WebSocket)</h1>
+  <pre id="dataBox">Esperando datos...</pre>
+
+  <script>
+    const socket = io("http://localhost:5000");
+
+    socket.on("connect", () => {
+      console.log("✅ Conectado al servidor WebSocket");
+    });
+
+    socket.on("new_data", (data) => {
+      console.log("📥 Nuevo dato recibido:", data);
+      document.getElementById("dataBox").textContent = JSON.stringify(data, null, 2);
+    });
+
+    socket.on("disconnect", () => {
+      console.log("❌ Desconectado del servidor");
+    });
+  </script>
+</body>
+</html>
