@@ -1,3 +1,5 @@
+import ssl
+
 import paho.mqtt.client as mqtt
 
 
@@ -67,7 +69,21 @@ def on_message(client, userdata, msg):
 
 def create_mqtt_client():
     client = mqtt.Client()
+
+    # Si tienes usuario/contraseña en el broker
+    if settings.MQTT_USERNAME and settings.MQTT_PASSWORD:
+        client.username_pw_set(settings.MQTT_USERNAME, settings.MQTT_PASSWORD)
+
     client.on_connect = on_connect
     client.on_message = on_message
-    client.connect(settings.MQTT_HOST, settings.MQTT_PORT, 60)
+
+    # Si el puerto es 8883 -> usar TLS
+    if str(settings.MQTT_PORT) == "8883" or settings.MQTT_TLS is True:
+        client.tls_set(cert_reqs=ssl.CERT_NONE)
+        client.tls_insecure_set(True)
+        print("🔐 Usando conexión MQTT con TLS")
+
+    print(f"🔌 Conectando a MQTT → {settings.MQTT_HOST}:{settings.MQTT_PORT}...")
+    client.connect(settings.MQTT_HOST, int(settings.MQTT_PORT), 60)
+
     return client
